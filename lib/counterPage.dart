@@ -19,13 +19,40 @@ class CounterPage extends StatelessWidget {
         ],
       ),
       body: Center(
-        child: BlocBuilder<CounterBloc, CounterState>(
-          builder: (context, state) {
-            return Text(
-              'Counter: ${state.counter}',
-              style: TextStyle(fontSize: 24),
-            );
-          },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            BlocBuilder<CounterBloc, CounterState>(
+              builder: (context, state) {
+                return Text(
+                  'Counter: ${state.counter}',
+                  style: const TextStyle(fontSize: 24),
+                );
+              },
+            ),
+            BlocBuilder<CounterBloc, CounterState>(
+              builder: (context, state) {
+                return Expanded(
+                  child: ListView.builder(
+                    itemCount: state.products.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(state.products[index]),
+                        trailing: IconButton(
+                          icon: Icon(Icons.remove_circle),
+                          onPressed: () {
+                            context
+                                .read<CounterBloc>()
+                                .add(RemoveProduct(state.products[index]));
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
       floatingActionButton: Row(
@@ -38,13 +65,24 @@ class CounterPage extends StatelessWidget {
             tooltip: 'Increment',
             child: Icon(Icons.add),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           FloatingActionButton(
             onPressed: () {
-              context.read<CounterBloc>().add(Decrement());
+              if (context.read<CounterBloc>().state.counter > 0) {
+                context.read<CounterBloc>().add(Decrement());
+              }
             },
             tooltip: 'Decrement',
-            child: Icon(Icons.remove),
+            child: const Icon(Icons.remove),
+          ),
+          const SizedBox(width: 10),
+          FloatingActionButton(
+            onPressed: () {
+              context.read<CounterBloc>().add(AddProduct(
+                  'Product ${context.read<CounterBloc>().state.products.length + 1}'));
+            },
+            tooltip: 'Add Product',
+            child: Icon(Icons.add_shopping_cart),
           ),
         ],
       ),
